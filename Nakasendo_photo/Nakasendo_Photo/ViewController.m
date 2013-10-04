@@ -96,8 +96,6 @@
     photoFrameImage = [UIImage imageNamed:@"mapPhotoFrame.png"];
     
     
-    // Tokyo Tower
-    
     //位置情報の取得を開始する。
     [_locationManager startUpdatingLocation];
    
