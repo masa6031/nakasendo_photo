@@ -33,6 +33,44 @@
 {
     [super viewDidLoad];
     
+    library = [[ALAssetsLibrary alloc]init];
+    //アルバム名
+    AlbumName = @"Nakasendo_Photo";
+    albumWasFound = FALSE;
+    
+    //アルバムの中に「このアプリ用」のアルバムがあるか確認。無ければ作成
+    ALAssetsLibraryGroupsEnumerationResultsBlock resultBlock =
+    ^(ALAssetsGroup *group, BOOL *stop){
+        if(group){
+            NSLog(@"グループ収集中...[%@]（%d個のアセット）",[group valueForProperty:ALAssetsGroupPropertyName],[group numberOfAssets]);
+            
+            [groups addObject:group];
+            //アルバムが見つかった場合
+            if([AlbumName compare:[group valueForProperty:ALAssetsGroupPropertyName]] == NSOrderedSame){
+                NSLog(@"アルバムが見つかりました");
+            }
+        }else{
+            NSLog(@"全%d個のグループの収集が終わりました",[groups count]);
+            
+            //アルバムがない場合は新規作成
+            if(!albumWasFound){
+                ALAssetsLibraryGroupResultBlock resultBlock = ^(ALAssetsGroup *group){
+                    groupURL = [group valueForProperty:ALAssetsGroupPropertyURL];
+                };
+                [library addAssetsGroupAlbumWithName:AlbumName resultBlock:resultBlock failureBlock:nil];
+                albumWasFound = TRUE;
+            }
+        }
+    };
+    
+    //ALAssetsLibraryからアルバムを取得
+    [library enumerateGroupsWithTypes:ALAssetsGroupAlbum
+                           usingBlock:resultBlock
+                         failureBlock:^(NSError *error){
+        NSLog(@"NO groups");
+    }];
+    
+    [library release];
     
     tapCount = 0;
     //現在地を表示する

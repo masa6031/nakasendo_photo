@@ -9,12 +9,18 @@
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
 @interface ViewController : UIViewController<CLLocationManagerDelegate,UIImagePickerControllerDelegate,MKMapViewDelegate,CLLocationManagerDelegate>
 {
     UIImage             *photoFrameImage;
     UIImage             *photoImage;
     int     tapCount;
+    NSString *AlbumName;    //アルバムの名前
+    NSMutableArray * groups;    //収集したALAssetsGroupクラスを格納
+    BOOL albumWasFound;
+    ALAssetsLibrary *library;
+    NSURL *groupURL;
 }
 - (IBAction)tapCameraButton:(id)sender;
 - (IBAction)tapDropButton:(id)sender;
