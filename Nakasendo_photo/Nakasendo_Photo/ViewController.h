@@ -16,15 +16,15 @@
     UIImage             *photoFrameImage;
     UIImage             *photoImage;
     int     tapCount;
-    NSString *AlbumName;    //アルバムの名前
     NSMutableArray * groups;    //収集したALAssetsGroupクラスを格納
     BOOL albumWasFound;
-    ALAssetsLibrary *library;
-    NSURL *groupURL;
 }
 - (IBAction)tapCameraButton:(id)sender;
 - (IBAction)tapDropButton:(id)sender;
 @property (retain, nonatomic) IBOutlet MKMapView *mapView;
 @property ( nonatomic, retain ) CLLocationManager *locationManager;
+@property ( nonatomic, retain ) ALAssetsLibrary *library;
+@property ( nonatomic, retain ) NSString *AlbumName;
+@property ( nonatomic, retain ) NSURL *groupURL;
 
 @end

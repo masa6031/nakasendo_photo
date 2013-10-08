@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		840CB88617FE7DE90013A726 /* ImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 840CB88517FE7DE90013A726 /* ImageIO.framework */; };
 		8429542C17FBD5120085A688 /* PhotoData.m in Sources */ = {isa = PBXBuildFile; fileRef = 8429542B17FBD5120085A688 /* PhotoData.m */; };
 		8429542F17FBDD6A0085A688 /* DatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8429542E17FBDD6A0085A688 /* DatabaseManager.m */; };
 		8429543117FBDDC60085A688 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8429543017FBDDC50085A688 /* libsqlite3.0.dylib */; };
@@ -45,6 +46,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		840CB88517FE7DE90013A726 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
 		8429542A17FBD5120085A688 /* PhotoData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PhotoData.h; path = database/PhotoData.h; sourceTree = "<group>"; };
 		8429542B17FBD5120085A688 /* PhotoData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PhotoData.m; path = database/PhotoData.m; sourceTree = "<group>"; };
 		8429542D17FBDD6A0085A688 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DatabaseManager.h; path = database/DatabaseManager.h; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				840CB88617FE7DE90013A726 /* ImageIO.framework in Frameworks */,
 				84DC766517FCF1ED00026235 /* AssetsLibrary.framework in Frameworks */,
 				8429543117FBDDC60085A688 /* libsqlite3.0.dylib in Frameworks */,
 				84F46E7C17F4164600FF0E5D /* CoreLocation.framework in Frameworks */,
@@ -146,6 +149,7 @@
 		84F46E4A17F4134F00FF0E5D = {
 			isa = PBXGroup;
 			children = (
+				840CB88517FE7DE90013A726 /* ImageIO.framework */,
 				84DC766417FCF1ED00026235 /* AssetsLibrary.framework */,
 				8429543017FBDDC50085A688 /* libsqlite3.0.dylib */,
 				84F46E7B17F4164600FF0E5D /* CoreLocation.framework */,

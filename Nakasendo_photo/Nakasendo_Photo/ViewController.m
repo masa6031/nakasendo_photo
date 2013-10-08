@@ -11,6 +11,7 @@
 #import "PhotoViewController.h"
 #import "PhotoData.h"
 #import "PhotoTable.h"
+#import <ImageIO/ImageIO.h>
 
 @interface ViewController ()
 
@@ -19,6 +20,10 @@
 @implementation ViewController
 
 @synthesize locationManager = _locationManager;
+@synthesize library = _library;
+@synthesize AlbumName = _AlbumName;
+@synthesize groupURL = _groupURL;
+
 
 - (void)dealloc {
     //delegateの接続を切る
@@ -26,6 +31,9 @@
     
     [_locationManager release],_locationManager = nil;
     [_mapView release];
+    [_library release],_library = nil;
+    [_AlbumName release], _AlbumName = nil;
+    [_groupURL release], _groupURL = nil;
     [super dealloc];
 }
 
@@ -33,9 +41,11 @@
 {
     [super viewDidLoad];
     
-    library = [[ALAssetsLibrary alloc]init];
+
+    
+    _library = [[ALAssetsLibrary alloc]init];
     //アルバム名
-    AlbumName = @"Nakasendo_Photo";
+    _AlbumName = @"Nakasendo_Photo";
     albumWasFound = FALSE;
     
     //アルバムが作成されているか確認
@@ -75,15 +85,19 @@
 - (void)albumCheck
 {
     //アルバムの中に「このアプリ用」のアルバムがあるか確認。無ければ作成
-    ALAssetsLibraryGroupsEnumerationResultsBlock resultBlock =
-    ^(ALAssetsGroup *group, BOOL *stop){
-        if(group){
+	ALAssetsLibraryGroupsEnumerationResultsBlock resultBlock =
+	^(ALAssetsGroup *group, BOOL *stop) {
+		if (group) {
             NSLog(@"グループ収集中...[%@]（%d個のアセット）",[group valueForProperty:ALAssetsGroupPropertyName],[group numberOfAssets]);
             
             [groups addObject:group];
             //アルバムが見つかった場合
-            if([AlbumName compare:[group valueForProperty:ALAssetsGroupPropertyName]] == NSOrderedSame){
+            if ([_AlbumName compare:[group valueForProperty:ALAssetsGroupPropertyName]] == NSOrderedSame) {
                 NSLog(@"アルバムが見つかりました");
+                
+                self.groupURL = [group valueForProperty:ALAssetsGroupPropertyURL];
+                NSLog(@"_groupURL=%@", self.groupURL);
+                albumWasFound = TRUE;
             }
         }else{
             NSLog(@"全%d個のグループの収集が終わりました",[groups count]);
@@ -91,24 +105,23 @@
             //アルバムがない場合は新規作成
             if(!albumWasFound){
                 ALAssetsLibraryGroupResultBlock resultBlock = ^(ALAssetsGroup *group){
-                    groupURL = [group valueForProperty:ALAssetsGroupPropertyURL];
+                    self.groupURL = [group valueForProperty:ALAssetsGroupPropertyURL];
+                    NSLog(@"「%@」のグループを作成しました",self.groupURL);
                 };
                 //アルバムの中に「AlbumName変数」の名前でグループを作成する。
-                [library addAssetsGroupAlbumWithName:AlbumName resultBlock:resultBlock failureBlock:nil];
-                NSLog(@"「%@」のグループを作成しました",AlbumName);
+                [_library addAssetsGroupAlbumWithName:_AlbumName resultBlock:resultBlock failureBlock:nil];
                 albumWasFound = TRUE;
             }
         }
     };
     
     //ALAssetsLibraryからアルバムを取得
-    [library enumerateGroupsWithTypes:ALAssetsGroupAlbum
+    [_library enumerateGroupsWithTypes:ALAssetsGroupAlbum
                            usingBlock:resultBlock
                          failureBlock:^(NSError *error){
                              NSLog(@"NO groups");
                          }];
     
-    [library release];
 }
 - (void)didReceiveMemoryWarning
 {
@@ -156,7 +169,7 @@
     
     //イメージピッカーカメラを生成
     UIImagePickerController *picker =
-    [[[UIImagePickerController alloc] init] autorelease];  
+    [[[UIImagePickerController alloc] init]autorelease];
     picker.delegate = (id)self;
     
     picker.allowsEditing = NO;  //撮影後に編集可能にするかの設定
@@ -178,7 +191,60 @@
     NSString *dateStr = [df stringFromDate:[NSDate date]];
     [df release];
     
-        //マップの初期表示位置の設定
+    //静止画の参照を取得
+    UIImage *image = info[UIImagePickerControllerOriginalImage];
+    //画像のリサイズ処理
+    float resize_w, resize_h;
+    
+    resize_w = 640.0f;
+    resize_h = 960.0f;
+    
+    UIGraphicsBeginImageContext(CGSizeMake(resize_w, resize_h));
+	[image drawInRect:CGRectMake(0, 0, resize_w, resize_h)];
+	image = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+    
+    //メタデータ
+    NSMutableDictionary *metadata = (NSMutableDictionary *)[info objectForKey:UIImagePickerControllerMediaMetadata];
+    NSMutableDictionary *EXIFDictionary = [[metadata objectForKey:(NSString *)kCGImagePropertyGPSDictionary]mutableCopy];
+    if(!EXIFDictionary){
+        EXIFDictionary = [NSMutableDictionary dictionary];
+    }
+    [EXIFDictionary setValue:@"UserComment-123" forKey:(NSString *)kCGImagePropertyExifUserComment];
+    [metadata setObject:EXIFDictionary forKey:(NSString *)kCGImagePropertyExifDictionary];
+    //metadataに格納されている情報を全て表示する。(descriptionで中にある全てのオブジェクトを表示）
+    NSLog(@"%@", [metadata description]);
+    
+    
+    //ALAsset
+    //カメラロールにUIImageを保存する。保存完了後、completionBlockで「NSURL* assetURL」が取得出来る。
+    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadata completionBlock:^(NSURL* assetURL, NSError* error) {
+        //    [_library writeImageToSavedPhotosAlbum:image.CGImage orientation:(ALAssetOrientation)image.imageOrientation
+        //                          completionBlock:^(NSURL* assetURL, NSError* error) {
+        
+        //アルバムにALAssetを追加する任意のメソッド
+        NSLog(@"_groupURL=%@", self.groupURL);
+        [_library groupForURL:self.groupURL
+                  resultBlock:^(ALAssetsGroup *group){
+                      
+                      //URLからALAssetを取得
+                      [_library assetForURL:assetURL
+                                resultBlock:^(ALAsset *asset) {
+                                    NSLog(@"%@",assetURL);
+                                   
+                                    
+                                    if (group.editable) {
+                                        //GroupにAssetを追加
+                                        [group addAsset:asset];
+                                    }
+                                    
+                                } failureBlock: nil];
+                  } failureBlock:nil];
+        
+    }];
+    
+    
+    //マップの初期表示位置の設定
     CLLocationCoordinate2D co;
     
     if(tapCount == 1)
@@ -193,9 +259,19 @@
         co.latitude = 35.362771; // 経度
         co.longitude = 136.641462; // 緯度
         
+    }else if(tapCount == 4){
+        co.latitude = 35.362316;
+        co.longitude = 136.652019;
+    }else if(tapCount == 5){
+        co.latitude = 35.356961;
+        co.longitude = 136.645968;
+    }else if(tapCount == 6){
+        co.latitude = 35.357696;
+        co.longitude = 136.639617;
     }else{
         
     }
+    
     
     
     
@@ -206,6 +282,11 @@
     
     [picker dismissViewControllerAnimated:YES completion:nil];
     
+}
+
+//写真を保存する。
+-(void)imageSave:(NSDictionary *)info
+{
 }
 
 //--------------------
