@@ -26,5 +26,6 @@
 @property ( nonatomic, retain ) ALAssetsLibrary *library;
 @property ( nonatomic, retain ) NSString *AlbumName;
 @property ( nonatomic, retain ) NSURL *groupURL;
+@property ( retain,nonatomic) UIImage *thumbImage;
 
 @end

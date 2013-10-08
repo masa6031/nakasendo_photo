@@ -23,6 +23,7 @@
 @synthesize library = _library;
 @synthesize AlbumName = _AlbumName;
 @synthesize groupURL = _groupURL;
+@synthesize thumbImage = _thumbImage;
 
 
 - (void)dealloc {
@@ -34,6 +35,7 @@
     [_library release],_library = nil;
     [_AlbumName release], _AlbumName = nil;
     [_groupURL release], _groupURL = nil;
+    [_thumbImage release],_thumbImage = nil;
     [super dealloc];
 }
 
@@ -231,7 +233,12 @@
                       [_library assetForURL:assetURL
                                 resultBlock:^(ALAsset *asset) {
                                     NSLog(@"%@",assetURL);
-                                   
+                                    //assetのthumbnailを取得する
+                                    self.thumbImage = [[UIImage alloc] initWithCGImage:[asset thumbnail]];
+                                    //thumbnailをそのまま表示すると回転してしまうので、ここで正常値に戻す。
+                                     self.thumbImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:0];
+                                    
+                                    
                                     
                                     if (group.editable) {
                                         //GroupにAssetを追加
@@ -319,7 +326,7 @@
         annotationView.image = photoFrameImage;
         //アノテーションの中心の設定
         [annotationView setCenterOffset:CGPointMake(0, -20)];
-        UIImageView *photoImageView = [[UIImageView alloc]initWithImage:[UIImage imageNamed:@"photo_01.png"]];
+        UIImageView *photoImageView = [[UIImageView alloc]initWithImage:_thumbImage];
         photoImageView.frame = CGRectMake(5, 5, 40, 40);
         [annotationView addSubview:photoImageView];
         [photoImageView release];
