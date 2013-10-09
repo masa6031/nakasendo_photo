@@ -233,7 +233,8 @@
     //オリジナルの写真からサムネイル用の写真をNSData型へ変換
     NSData *thumbnailData = UIImageJPEGRepresentation(thumbnailImage, 1.0);
     
-    //NSData型のサムネイル画像をUIImage型へ変換。
+    //NSData型のサムネイル画像を　➡
+    //UIImage型へ変換。サムネイル画像
     self.thumbImage = [UIImage imageWithData:thumbnailData]; 
     
     
@@ -258,10 +259,20 @@
 -(void)saveAssets:(NSDictionary *)info image:(UIImage *)image
 {
     
+    //メタデータ
+    NSMutableDictionary *metadata = (NSMutableDictionary *)[info objectForKey:UIImagePickerControllerMediaMetadata];
+    NSMutableDictionary *EXIFDictionary = [[metadata objectForKey:(NSString *)kCGImagePropertyGPSDictionary]mutableCopy];
+    if(!EXIFDictionary){
+        EXIFDictionary = [NSMutableDictionary dictionary];
+    }
+    [EXIFDictionary setValue:@"UserComment-123" forKey:(NSString *)kCGImagePropertyExifUserComment];
+    [metadata setObject:EXIFDictionary forKey:(NSString *)kCGImagePropertyExifDictionary];
+    //metadataに格納されている情報を全て表示する。(descriptionで中にある全てのオブジェクトを表示）
+    NSLog(@"%@", [metadata description]);
     
     //ALAsset
     //カメラロールにUIImageを保存する。保存完了後、completionBlockで「NSURL* assetURL」が取得出来る。
-    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:info completionBlock:^(NSURL* assetURL, NSError* error) {
+    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadata completionBlock:^(NSURL* assetURL, NSError* error) {
         //    [_library writeImageToSavedPhotosAlbum:image.CGImage orientation:(ALAssetOrientation)image.imageOrientation
         //                          completionBlock:^(NSURL* assetURL, NSError* error) {
         
@@ -273,7 +284,6 @@
                       //URLからALAssetを取得
                       [_library assetForURL:assetURL
                                 resultBlock:^(ALAsset *asset) {
-                                    
                                     NSLog(@"%@",assetURL);
                                     //assetのthumbnailを取得する
 //                                    self.thumbImage = [[UIImage alloc] initWithCGImage:[asset thumbnail]];
@@ -311,7 +321,6 @@
     
     // 地図上にピンを表示
     MKAnnotationView *annotationView = (MKAnnotationView*)[_mapView dequeueReusableAnnotationViewWithIdentifier:PinIdentifier];
-    
     
     
     if (annotationView == nil) {
