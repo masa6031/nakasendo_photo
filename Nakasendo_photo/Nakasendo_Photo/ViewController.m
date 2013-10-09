@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "PhotoAnnotation.h"
+#import "CustomAnnotation.h"
 #import "PhotoViewController.h"
 #import "PhotoData.h"
 #import "PhotoTable.h"
@@ -24,6 +24,9 @@
 @synthesize AlbumName = _AlbumName;
 @synthesize groupURL = _groupURL;
 @synthesize thumbImage = _thumbImage;
+@synthesize originalPhotoData = _originalPhotoData;
+@synthesize photoArray = _photoArray;
+@synthesize photoLocation = _photoLocation;
 
 
 - (void)dealloc {
@@ -36,6 +39,8 @@
     [_AlbumName release], _AlbumName = nil;
     [_groupURL release], _groupURL = nil;
     [_thumbImage release],_thumbImage = nil;
+    [_originalPhotoData release],_originalPhotoData = nil;
+    [_photoArray release],_photoArray = nil;
     [super dealloc];
 }
 
@@ -43,9 +48,11 @@
 {
     [super viewDidLoad];
     
+    self.photoArray = [NSMutableArray array];
 
-    
+    //assetsライブラリー初期化
     _library = [[ALAssetsLibrary alloc]init];
+    
     //アルバム名
     _AlbumName = @"Nakasendo_Photo";
     albumWasFound = FALSE;
@@ -139,6 +146,9 @@
     //Locationにlocationsの情報を入れる
     CLLocation *location = [[locations lastObject] copy];
     
+    self.photoLocation = location.coordinate;   //取得した位置情報（緯度経度）を格納
+    
+    
     MKCoordinateRegion region = self.mapView.region;
     //region.centerで緯度経度の設定。locationのcoordinateに緯度経度の情報が入っている。
     region.center = location.coordinate;
@@ -167,7 +177,6 @@
 
 //カメラのボタンを押下
 - (IBAction)tapCameraButton:(id)sender {
-    tapCount++;     //テスト用（タップするごとに緯度経度を変更)
     
     //イメージピッカーカメラを生成
     UIImagePickerController *picker =
@@ -186,41 +195,73 @@
 //撮影終了後に「use」を押すと呼び出されるメソッド。
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
+    //撮影写真の取得
+    UIImage *originalImage = info[UIImagePickerControllerOriginalImage];
     
-    //撮影日時の生成
-    NSDateFormatter *df = [[NSDateFormatter alloc]init];
-    df.dateFormat =  @"yyyy/MM/dd";
-    NSString *dateStr = [df stringFromDate:[NSDate date]];
-    [df release];
+    //撮った写真をアセッツフォルダに保存。
+    [self saveAssets:info image:originalImage];
     
-    //静止画の参照を取得
-    UIImage *image = info[UIImagePickerControllerOriginalImage];
+    
     //画像のリサイズ処理
     float resize_w, resize_h;
     
-    resize_w = 640.0f;
-    resize_h = 960.0f;
+    resize_w = 768.0f;
+    resize_h = 1024.0f;
     
-    UIGraphicsBeginImageContext(CGSizeMake(resize_w, resize_h));
-	[image drawInRect:CGRectMake(0, 0, resize_w, resize_h)];
-	image = UIGraphicsGetImageFromCurrentImageContext();
-	UIGraphicsEndImageContext();
     
-    //メタデータ
-    NSMutableDictionary *metadata = (NSMutableDictionary *)[info objectForKey:UIImagePickerControllerMediaMetadata];
-    NSMutableDictionary *EXIFDictionary = [[metadata objectForKey:(NSString *)kCGImagePropertyGPSDictionary]mutableCopy];
-    if(!EXIFDictionary){
-        EXIFDictionary = [NSMutableDictionary dictionary];
-    }
-    [EXIFDictionary setValue:@"UserComment-123" forKey:(NSString *)kCGImagePropertyExifUserComment];
-    [metadata setObject:EXIFDictionary forKey:(NSString *)kCGImagePropertyExifDictionary];
-    //metadataに格納されている情報を全て表示する。(descriptionで中にある全てのオブジェクトを表示）
-    NSLog(@"%@", [metadata description]);
+    UIGraphicsBeginImageContext(CGSizeMake(resize_w, resize_h));    //リサイズ処理の開始
+	[originalImage drawInRect:CGRectMake(0, 0, resize_w, resize_h)];
+	UIImage *newOriginalImage = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();    //リサイズ処理の終了
+    
+    //オリジナルの写真の解像度を低くしてNSDataへ変換
+    self.originalPhotoData = UIImageJPEGRepresentation(newOriginalImage, 1.0);
+    
+    [self.photoArray addObject:self.originalPhotoData];
+    
+    
+    
+    //サムネイル画像の作成
+    resize_w = 150.0;
+    resize_h = 150.0;
+    
+    UIGraphicsBeginImageContext(CGSizeMake(resize_w, resize_h));    //リサイズ処理の開始
+	[originalImage drawInRect:CGRectMake(0, 0, resize_w, resize_h)];
+	UIImage *thumbnailImage = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();    //リサイズ処理の終了
+    
+    //オリジナルの写真からサムネイル用の写真をNSData型へ変換
+    NSData *thumbnailData = UIImageJPEGRepresentation(thumbnailImage, 1.0);
+    
+    //NSData型のサムネイル画像をUIImage型へ変換。
+    self.thumbImage = [UIImage imageWithData:thumbnailData]; 
+    
+    
+
+    
+    
+    CustomAnnotation *anno = [[CustomAnnotation alloc]initWithCoordinate:_photoLocation];
+    anno.title = @"写真";    //サムネイルのタイトル
+    anno.photoID = tapCount;    //サムネイルにタグ
+    tapCount++;     //テスト用（タップするごとに緯度経度を変更)
+    
+    
+    
+    [_mapView addAnnotation:anno];
+    [anno release];
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    
+}
+
+//写真をアセッツフォルダに保存
+-(void)saveAssets:(NSDictionary *)info image:(UIImage *)image
+{
     
     
     //ALAsset
     //カメラロールにUIImageを保存する。保存完了後、completionBlockで「NSURL* assetURL」が取得出来る。
-    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadata completionBlock:^(NSURL* assetURL, NSError* error) {
+    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:info completionBlock:^(NSURL* assetURL, NSError* error) {
         //    [_library writeImageToSavedPhotosAlbum:image.CGImage orientation:(ALAssetOrientation)image.imageOrientation
         //                          completionBlock:^(NSURL* assetURL, NSError* error) {
         
@@ -232,11 +273,12 @@
                       //URLからALAssetを取得
                       [_library assetForURL:assetURL
                                 resultBlock:^(ALAsset *asset) {
+                                    
                                     NSLog(@"%@",assetURL);
                                     //assetのthumbnailを取得する
-                                    self.thumbImage = [[UIImage alloc] initWithCGImage:[asset thumbnail]];
+//                                    self.thumbImage = [[UIImage alloc] initWithCGImage:[asset thumbnail]];
                                     //thumbnailをそのまま表示すると回転してしまうので、ここで正常値に戻す。
-                                     self.thumbImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:0];
+//                                     self.thumbImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:0];
                                     
                                     
                                     
@@ -250,50 +292,7 @@
         
     }];
     
-    
-    //マップの初期表示位置の設定
-    CLLocationCoordinate2D co;
-    
-    if(tapCount == 1)
-    {
-        co.latitude = 35.360146; // 経度
-        co.longitude = 136.627214; // 緯度
-    }else if(tapCount == 2)
-    {
-        co.latitude = 35.370575; // 経度
-        co.longitude = 136.633094; // 緯度
-    }else if(tapCount == 3){
-        co.latitude = 35.362771; // 経度
-        co.longitude = 136.641462; // 緯度
-        
-    }else if(tapCount == 4){
-        co.latitude = 35.362316;
-        co.longitude = 136.652019;
-    }else if(tapCount == 5){
-        co.latitude = 35.356961;
-        co.longitude = 136.645968;
-    }else if(tapCount == 6){
-        co.latitude = 35.357696;
-        co.longitude = 136.639617;
-    }else{
-        
-    }
-    
-    
-    
-    
-    PhotoAnnotation *anno = [[PhotoAnnotation alloc]initWithCoordinate:co];
-    anno.title = @"写真";
-    
-    [_mapView addAnnotation:anno];
-    
-    [picker dismissViewControllerAnimated:YES completion:nil];
-    
-}
 
-//写真を保存する。
--(void)imageSave:(NSDictionary *)info
-{
 }
 
 //--------------------
@@ -309,8 +308,10 @@
     }
     static NSString *PinIdentifier = @"Pin";
     
+    
     // 地図上にピンを表示
     MKAnnotationView *annotationView = (MKAnnotationView*)[_mapView dequeueReusableAnnotationViewWithIdentifier:PinIdentifier];
+    
     
     
     if (annotationView == nil) {
@@ -355,7 +356,15 @@
 //写真の吹き出しをクリックした時の処理
 - (void) mapView:(MKMapView*)_mapView annotationView:(MKAnnotationView*)annotationView calloutAccessoryControlTapped:(UIControl*)control {
     
+    
+    //タップしたサムネのAnnotationを読み込む
+    CustomAnnotation *anno = (CustomAnnotation *)annotationView.annotation;
+    NSLog(@"タグ:%d",anno.photoID);
+    
+    
     PhotoViewController *photoviewController = [[PhotoViewController alloc] initWithNibName:@"PhotoViewController" bundle:nil];
+    //
+    photoviewController.photoData = (NSData *)[_photoArray objectAtIndex:anno.photoID];
     [self presentViewController:photoviewController animated:YES completion:nil];
     [photoviewController release];
 

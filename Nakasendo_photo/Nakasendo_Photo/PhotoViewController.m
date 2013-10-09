@@ -15,6 +15,7 @@
 @end
 
 @implementation PhotoViewController
+@synthesize photoData = _photoData;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -31,7 +32,8 @@
     // Do any additional setup after loading the view from its nib.
 //    NSMutableArray *array = [PhotoTable selectWithPhotoId:@"1"];
 //    PhotoData *data = array[0];
-    _imageView.image = [UIImage imageNamed:@"photo_01.png"];
+    _imageView.image = [UIImage imageWithData:self.photoData];
+
 }
 
 - (void)didReceiveMemoryWarning
@@ -45,6 +47,7 @@
 }
 - (void)dealloc {
     [_imageView release];
+    [_photoData release], _photoData = nil;
     [super dealloc];
 }
 @end

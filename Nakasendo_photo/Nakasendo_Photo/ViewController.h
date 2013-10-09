@@ -26,6 +26,10 @@
 @property ( nonatomic, retain ) ALAssetsLibrary *library;
 @property ( nonatomic, retain ) NSString *AlbumName;
 @property ( nonatomic, retain ) NSURL *groupURL;
-@property ( retain,nonatomic) UIImage *thumbImage;
+@property ( nonatomic, retain ) NSData *originalPhotoData;
+@property ( nonatomic, retain ) UIImage *thumbImage;
+@property ( nonatomic, retain ) NSMutableArray *photoArray;
+@property ( nonatomic, assign ) CLLocationCoordinate2D photoLocation;
+
 
 @end

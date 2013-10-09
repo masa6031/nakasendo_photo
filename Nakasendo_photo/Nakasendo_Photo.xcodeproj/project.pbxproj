@@ -13,7 +13,7 @@
 		8429543117FBDDC60085A688 /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8429543017FBDDC50085A688 /* libsqlite3.0.dylib */; };
 		8429543417FBDEE60085A688 /* PhotoTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 8429543317FBDEE60085A688 /* PhotoTable.m */; };
 		8429543617FBE01D0085A688 /* photo.db in Resources */ = {isa = PBXBuildFile; fileRef = 8429543517FBE01D0085A688 /* photo.db */; };
-		84D74AFC17F95DE1006FFC08 /* PhotoAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D74AFB17F95DE1006FFC08 /* PhotoAnnotation.m */; };
+		84D74AFC17F95DE1006FFC08 /* CustomAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 84D74AFB17F95DE1006FFC08 /* CustomAnnotation.m */; };
 		84DC766517FCF1ED00026235 /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84DC766417FCF1ED00026235 /* AssetsLibrary.framework */; };
 		84DC770517FD5FAE00026235 /* PhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 84DC770317FD5FAE00026235 /* PhotoViewController.m */; };
 		84DC770617FD5FAE00026235 /* PhotoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84DC770417FD5FAE00026235 /* PhotoViewController.xib */; };
@@ -55,8 +55,8 @@
 		8429543217FBDEE60085A688 /* PhotoTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoTable.h; sourceTree = "<group>"; };
 		8429543317FBDEE60085A688 /* PhotoTable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoTable.m; sourceTree = "<group>"; };
 		8429543517FBE01D0085A688 /* photo.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = photo.db; sourceTree = SOURCE_ROOT; };
-		84D74AFA17F95DE1006FFC08 /* PhotoAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoAnnotation.h; sourceTree = "<group>"; };
-		84D74AFB17F95DE1006FFC08 /* PhotoAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoAnnotation.m; sourceTree = "<group>"; };
+		84D74AFA17F95DE1006FFC08 /* CustomAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomAnnotation.h; sourceTree = "<group>"; };
+		84D74AFB17F95DE1006FFC08 /* CustomAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAnnotation.m; sourceTree = "<group>"; };
 		84DC766417FCF1ED00026235 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		84DC770217FD5FAD00026235 /* PhotoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoViewController.h; sourceTree = "<group>"; };
 		84DC770317FD5FAE00026235 /* PhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoViewController.m; sourceTree = "<group>"; };
@@ -186,8 +186,8 @@
 				84F46E6617F4134F00FF0E5D /* AppDelegate.m */,
 				84F46E6E17F4134F00FF0E5D /* ViewController.h */,
 				84F46E6F17F4134F00FF0E5D /* ViewController.m */,
-				84D74AFA17F95DE1006FFC08 /* PhotoAnnotation.h */,
-				84D74AFB17F95DE1006FFC08 /* PhotoAnnotation.m */,
+				84D74AFA17F95DE1006FFC08 /* CustomAnnotation.h */,
+				84D74AFB17F95DE1006FFC08 /* CustomAnnotation.m */,
 				84F46E7117F4134F00FF0E5D /* ViewController.xib */,
 				84DC770217FD5FAD00026235 /* PhotoViewController.h */,
 				84DC770317FD5FAE00026235 /* PhotoViewController.m */,
@@ -297,7 +297,7 @@
 				84F46E6317F4134F00FF0E5D /* main.m in Sources */,
 				84F46E6717F4134F00FF0E5D /* AppDelegate.m in Sources */,
 				84F46E7017F4134F00FF0E5D /* ViewController.m in Sources */,
-				84D74AFC17F95DE1006FFC08 /* PhotoAnnotation.m in Sources */,
+				84D74AFC17F95DE1006FFC08 /* CustomAnnotation.m in Sources */,
 				8429542C17FBD5120085A688 /* PhotoData.m in Sources */,
 				8429542F17FBDD6A0085A688 /* DatabaseManager.m in Sources */,
 				8429543417FBDEE60085A688 /* PhotoTable.m in Sources */,

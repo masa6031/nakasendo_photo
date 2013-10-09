@@ -10,6 +10,7 @@
 
 @interface PhotoViewController : UIViewController
 - (IBAction)tapBackButton:(id)sender;
+@property (nonatomic, copy) NSData *photoData;
 @property (retain, nonatomic) IBOutlet UIImageView *imageView;
 
 @end

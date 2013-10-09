@@ -6,12 +6,14 @@
 //  Copyright (c) 2013年 pasonatech. All rights reserved.
 //
 
-#import "PhotoAnnotation.h"
+#import "CustomAnnotation.h"
 
-@implementation PhotoAnnotation
+@implementation CustomAnnotation
 
 @synthesize coordinate;
 @synthesize title;
+@synthesize subtitle;
+@synthesize photoID;
 
 - (id)initWithCoordinate:(CLLocationCoordinate2D)co
 {
