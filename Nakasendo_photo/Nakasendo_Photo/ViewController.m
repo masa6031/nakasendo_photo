@@ -41,6 +41,7 @@
     [_thumbImage release],_thumbImage = nil;
     [_originalPhotoData release],_originalPhotoData = nil;
     [_photoArray release],_photoArray = nil;
+    [_imageView release];
     [super dealloc];
 }
 
@@ -378,7 +379,39 @@
     [photoviewController release];
 
 }
-//写真をドロップさせるボタンを押した
-- (IBAction)tapDropButton:(id)sender {
+//次の画面に遷移する
+- (IBAction)tapMoveButton:(id)sender {
+    //画像のURL
+    NSURL *url = [NSURL URLWithString:@"assets-library://asset/asset.JPG?id=859ED7F3-685A-4DDC-A98C-30143F9C22CF&ext=JPG"];
+//    self.imageView.image = [UIImage imageWithData:data];
+    
+    
+    [_library groupForURL:self.groupURL
+              resultBlock:^(ALAssetsGroup *group){
+                  
+                  //URLからALAssetを取得
+                  [_library assetForURL:url
+                            resultBlock:^(ALAsset *asset) {
+                                
+                                //画像があればYES、無ければNOを返す
+                                if(asset){
+                                    NSLog(@"データがあります");
+                                }else{
+                                    NSLog(@"データがありません");
+                                }
+                               //ALAssetRepresentationクラスのインスタンスの作成
+                                ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
+                                
+                               //ALAssetRepresentationを使用して、フルスクリーン用の画像をUIImageに変換
+                               //fullScreenImageで元画像と同じ解像度の写真を取得する。
+                                UIImage *fullscreenImage = [UIImage imageWithCGImage:[assetRepresentation fullScreenImage]];
+                                self.imageView.image = fullscreenImage; //イメージをセット
+                                if (group.editable) {
+                                    //GroupにAssetを追加
+                                    [group addAsset:asset];
+                                }
+                                
+                            } failureBlock: nil];
+              } failureBlock:nil];
 }
 @end

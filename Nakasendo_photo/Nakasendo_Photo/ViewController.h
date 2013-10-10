@@ -20,7 +20,7 @@
     BOOL albumWasFound;
 }
 - (IBAction)tapCameraButton:(id)sender;
-- (IBAction)tapDropButton:(id)sender;
+- (IBAction)tapMoveButton:(id)sender;
 @property (retain, nonatomic) IBOutlet MKMapView *mapView;
 @property ( nonatomic, retain ) CLLocationManager *locationManager;
 @property ( nonatomic, retain ) ALAssetsLibrary *library;
@@ -30,6 +30,7 @@
 @property ( nonatomic, retain ) UIImage *thumbImage;
 @property ( nonatomic, retain ) NSMutableArray *photoArray;
 @property ( nonatomic, assign ) CLLocationCoordinate2D photoLocation;
+@property (retain, nonatomic) IBOutlet UIImageView *imageView;
 
 
 @end
