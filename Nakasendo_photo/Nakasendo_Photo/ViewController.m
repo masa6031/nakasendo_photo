@@ -27,6 +27,7 @@
 @synthesize originalPhotoData = _originalPhotoData;
 @synthesize photoArray = _photoArray;
 @synthesize photoLocation = _photoLocation;
+@synthesize urlArray = _urlArray;
 
 
 - (void)dealloc {
@@ -42,6 +43,7 @@
     [_originalPhotoData release],_originalPhotoData = nil;
     [_photoArray release],_photoArray = nil;
     [_imageView release];
+    [_urlArray release],_urlArray = nil;
     [super dealloc];
 }
 
@@ -49,7 +51,10 @@
 {
     [super viewDidLoad];
     
+    tapCount2 = 0;
+    
     self.photoArray = [NSMutableArray array];
+    self.urlArray = [NSMutableArray array];
 
     //assetsライブラリー初期化
     _library = [[ALAssetsLibrary alloc]init];
@@ -259,21 +264,25 @@
 //写真をアセッツフォルダに保存
 -(void)saveAssets:(NSDictionary *)info image:(UIImage *)image
 {
-    
+    //メタデータのユーザーコメントに値を代入出来る。
+    /*
     //メタデータ
-    NSMutableDictionary *metadata = (NSMutableDictionary *)[info objectForKey:UIImagePickerControllerMediaMetadata];
-    NSMutableDictionary *EXIFDictionary = [[metadata objectForKey:(NSString *)kCGImagePropertyGPSDictionary]mutableCopy];
+    NSMutableDictionary *metadata = [[[info objectForKey:UIImagePickerControllerMediaMetadata] mutableCopy]autorelease];
+    NSMutableDictionary *EXIFDictionary = [[[metadata objectForKey:(NSString *)kCGImagePropertyGPSDictionary] mutableCopy]autorelease];
     if(!EXIFDictionary){
         EXIFDictionary = [NSMutableDictionary dictionary];
     }
     [EXIFDictionary setValue:@"UserComment-123" forKey:(NSString *)kCGImagePropertyExifUserComment];
     [metadata setObject:EXIFDictionary forKey:(NSString *)kCGImagePropertyExifDictionary];
+    
     //metadataに格納されている情報を全て表示する。(descriptionで中にある全てのオブジェクトを表示）
     NSLog(@"%@", [metadata description]);
+     */
+    
     
     //ALAsset
     //カメラロールにUIImageを保存する。保存完了後、completionBlockで「NSURL* assetURL」が取得出来る。
-    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadata completionBlock:^(NSURL* assetURL, NSError* error) {
+    [_library writeImageToSavedPhotosAlbum:image.CGImage metadata:[info objectForKey:UIImagePickerControllerMediaMetadata] completionBlock:^(NSURL* assetURL, NSError* error) {
         //    [_library writeImageToSavedPhotosAlbum:image.CGImage orientation:(ALAssetOrientation)image.imageOrientation
         //                          completionBlock:^(NSURL* assetURL, NSError* error) {
         
@@ -286,6 +295,9 @@
                       [_library assetForURL:assetURL
                                 resultBlock:^(ALAsset *asset) {
                                     NSLog(@"%@",assetURL);
+                                    [self.urlArray addObject:assetURL];
+                                    
+                                    
                                     //assetのthumbnailを取得する
 //                                    self.thumbImage = [[UIImage alloc] initWithCGImage:[asset thumbnail]];
                                     //thumbnailをそのまま表示すると回転してしまうので、ここで正常値に戻す。
@@ -298,9 +310,9 @@
                                         [group addAsset:asset];
                                     }
                                     
+                                    
                                 } failureBlock: nil];
                   } failureBlock:nil];
-        
     }];
     
 
@@ -382,23 +394,20 @@
 //次の画面に遷移する
 - (IBAction)tapMoveButton:(id)sender {
     //画像のURL
-    NSURL *url = [NSURL URLWithString:@"assets-library://asset/asset.JPG?id=859ED7F3-685A-4DDC-A98C-30143F9C22CF&ext=JPG"];
 //    self.imageView.image = [UIImage imageWithData:data];
-    
+    NSLog(@"URLカウントは：%d",[_urlArray count]);
+    NSLog(@"タップカウントは：%d",tapCount2);
     
     [_library groupForURL:self.groupURL
               resultBlock:^(ALAssetsGroup *group){
                   
                   //URLからALAssetを取得
-                  [_library assetForURL:url
+                  [_library assetForURL:(NSURL *)[self.urlArray objectAtIndex:tapCount2]
                             resultBlock:^(ALAsset *asset) {
                                 
                                 //画像があればYES、無ければNOを返す
                                 if(asset){
                                     NSLog(@"データがあります");
-                                }else{
-                                    NSLog(@"データがありません");
-                                }
                                //ALAssetRepresentationクラスのインスタンスの作成
                                 ALAssetRepresentation *assetRepresentation = [asset defaultRepresentation];
                                 
@@ -410,8 +419,17 @@
                                     //GroupにAssetを追加
                                     [group addAsset:asset];
                                 }
-                                
+                                }else{
+                                    NSLog(@"データがありません");
+                                }
+                                if(tapCount2 == [_urlArray count]-1)
+                                {
+                                    tapCount2 =0;
+                                }else{
+                                    tapCount2 ++;
+                                }
                             } failureBlock: nil];
               } failureBlock:nil];
+    
 }
 @end

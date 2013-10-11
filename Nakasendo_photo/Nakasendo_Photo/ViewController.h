@@ -16,6 +16,7 @@
     UIImage             *photoFrameImage;
     UIImage             *photoImage;
     int     tapCount;
+    int tapCount2;
     NSMutableArray * groups;    //収集したALAssetsGroupクラスを格納
     BOOL albumWasFound;
 }
@@ -31,6 +32,7 @@
 @property ( nonatomic, retain ) NSMutableArray *photoArray;
 @property ( nonatomic, assign ) CLLocationCoordinate2D photoLocation;
 @property (retain, nonatomic) IBOutlet UIImageView *imageView;
+@property (nonatomic , retain ) NSMutableArray *urlArray;
 
 
 @end
